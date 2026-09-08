@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>數的分解與合成</title>
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --primary-blue: #2b5278;
+      --card-bg: #ffffff;
+      --accent-blue: #3b82f6;
+      --accent-blue-hover: #2563eb;
+      --accent-blue-light: #eff6ff;
+      --border-color: #cbd5e1;
+      --text-main: #1e293b;
+      --text-sub: #64748b;
+      --yellow-branch: #f59e0b;
+      --success-green: #10b981;
+      --error-red: #ef4444;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans HK", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      display: flex;
+      flex-direction: column;
+    }
+
+    html {
+      height: -webkit-fill-available;
+    }
+
+    header {
+      background-color: var(--primary-blue);
+      color: white;
+      height: 60px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding-left: max(24px, env(safe-area-inset-left));
+      padding-right: max(24px, env(safe-area-inset-right));
+    }
+
+    .logo-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      color: white;
+      padding: 8px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .page {
+      display: none;
+      width: 100%;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .home-title, .section-title {
+      text-align: center;
+      font-size: 1.6rem;
+      color: var(--primary-blue);
+      margin-bottom: 28px;
+      font-weight: 700;
+    }
+
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .mode-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 36px 28px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .mode-card:hover, .mode-card:active {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 500px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .option-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      min-height: 52px;
+    }
+
+    .option-card.selected {
+      border-color: var(--accent-blue);
+      background-color: var(--accent-blue-light);
+    }
+
+    .checkbox-custom {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      margin-right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      flex-shrink: 0;
+    }
+
+    .option-card.selected .checkbox-custom {
+      background-color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .option-card.selected .checkbox-custom::after {
+      content: '';
+      width: 6px;
+      height: 11px;
+      border: solid white;
+      border-width: 0 2.5px 2.5px 0;
+      transform: rotate(45deg);
+      margin-bottom: 2px;
+    }
+
+    .button-group {
+      margin-top: 32px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .btn-primary, .btn-secondary {
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-blue);
+      color: white;
+    }
+
+    .btn-primary:hover, .btn-primary:active {
+      background-color: var(--accent-blue-hover);
+    }
+
+    .btn-secondary {
+      background-color: #64748b;
+      color: white;
+    }
+
+    .btn-secondary:hover, .btn-secondary:active {
+      background-color: #475569;
+    }
+
+    .quiz-wrapper {
+      max-width: 750px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .nav-back-stage {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border: 1.5px solid var(--border-color);
+      padding: 10px 18px;
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      min-height: 44px;
+    }
+
+    .nav-back-stage:hover, .nav-back-stage:active {
+      background-color: #f8fafc;
+      border-color: var(--text-sub);
+    }
+
+    .quiz-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 32px 36px 40px 36px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      text-align: center;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      background-color: #e2e8f0;
+      height: 8px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: #cbd5e1;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .quiz-header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-bottom: 30px;
+    }
+
+    /* 樹狀結構與節點 */
+    .tree-diagram {
+      position: relative;
+      width: 240px;
+      height: 200px;
+      margin: 0 auto 24px auto;
+    }
+
+    .node {
+      width: 80px;
+      height: 80px;
+      border: 3.5px solid #0099ff;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      position: absolute;
+      z-index: 2;
+    }
+
+    .node-top {
+      top: 0;
+      left: 80px;
+    }
+
+    .node-bottom-left {
+      bottom: 0;
+      left: 10px;
+    }
+
+    .node-bottom-right {
+      bottom: 0;
+      right: 10px;
+    }
+
+    .node-input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 50%;
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #0099ff;
+      outline: none;
+      background: transparent;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      margin: 0;
+      padding: 0;
+    }
+
+    .node-input::-webkit-outer-spin-button,
+    .node-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .node-input:focus {
+      background-color: #f0f9ff;
+    }
+
+    .tree-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .tree-line {
+      stroke: #0099ff;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .feedback-box {
+      min-height: 60px;
+      margin-bottom: 10px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feedback-box.correct {
+      background-color: #ecfdf5;
+      color: var(--success-green);
+      font-weight: bold;
+    }
+
+    .feedback-box.error {
+      background-color: #fef2f2;
+      color: var(--error-red);
+    }
+
+    .feedback-box.hint {
+      background-color: #fffbe0;
+      color: #b45309;
+      border: 1px solid #fef3c7;
+    }
+
+    .report-container {
+      max-width: 680px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .report-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .report-header h2 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .report-header p {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .report-section {
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      border: 1px solid #f1f5f9;
+    }
+
+    .report-section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .analysis-text-item {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .analysis-text-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .question-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .q-item-card {
+      border-radius: 10px;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+    }
+
+    .q-item-card.correct-item {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .q-item-card.wrong-item {
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    .q-item-title {
+      font-weight: 700;
+    }
+
+    .q-item-answers {
+      display: flex;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .empty-msg {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      padding: 8px 0;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 28px 24px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+    }
+
+    .modal-content h3 {
+      margin-bottom: 12px;
+      color: var(--primary-blue);
+    }
+
+    .modal-content p {
+      color: var(--text-sub);
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-title" id="app-title">數的分解與合成</div>
+    <button class="lang-btn" id="lang-toggle-btn" onclick="toggleLanguage()">English</button>
+  </header>
+
+  <main>
+    <!-- 頁面 1：首頁 -->
+    <div id="page-home" class="page active">
+      <h1 class="home-title" id="home-prompt">請選擇學習主題</h1>
+      <div class="cards-container">
+        <div class="mode-card" onclick="navigateToDecomposition()">
+          <h2 id="card-decomp-title" style="color: var(--primary-blue); margin-bottom: 12px;">數的分解</h2>
+          <p id="card-decomp-desc" style="color: var(--text-sub);">練習將一個數分解為兩個數。包含基礎及進階不同數值範圍的分層練習。</p>
+        </div>
+        <div class="mode-card" onclick="navigateToComposition()">
+          <h2 id="card-comp-title" style="color: var(--primary-blue); margin-bottom: 12px;">數的合成 🔥</h2>
+          <p id="card-comp-desc" style="color: var(--text-sub);">練習將兩個數合成為一個數。分層練習不同數值範圍的合成組合。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 頁面 2：難度分層 -->
+    <div id="page-stages" class="page">
+      <h2 class="section-title" id="stage-prompt">請選擇練習階段（可單選或多選）</h2>
+      <div class="options-list" id="options-list-container">
+        <!-- 動態渲染階段選項 -->
+      </div>
+      <div class="button-group">
+        <button class="btn-secondary" onclick="goHome()" id="back-btn-text">返回主頁</button>
+        <button class="btn-primary" onclick="startPractice()" id="start-btn-text">開始練習</button>
+      </div>
+    </div>
+
+    <!-- 頁面 3：練習答題頁 -->
+    <div id="page-quiz" class="page">
+      <div class="quiz-wrapper">
+        <button class="nav-back-stage" onclick="backToStages()" id="nav-back-stage-text">
+          ← 返回階段選擇
+        </button>
+
+        <div class="quiz-card">
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="quiz-progress"></div>
+          </div>
+
+          <div class="quiz-header-info">
+            <span id="quiz-stage-title">階段一</span>
+            <span id="quiz-question-num">題目 1 / 10</span>
+          </div>
+
+          <div class="tree-diagram">
+            <svg class="tree-svg">
+              <line x1="120" y1="40" x2="50" y2="160" class="tree-line"></line>
+              <line x1="120" y1="40" x2="190" y2="160" class="tree-line"></line>
+            </svg>
+            <div class="node node-top" id="node-total">
+              <div id="node-top-content" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"></div>
+            </div>
+            <div class="node node-bottom-left" id="node-left"></div>
+            <div class="node node-bottom-right" id="node-right"></div>
+          </div>
+
+          <div class="feedback-box" id="feedback-area"></div>
+
+          <div class="button-group" style="margin-top: 10px;">
+            <button class="btn-primary" id="submit-btn" onclick="checkAnswer()">提交答案</button>
+            <button class="btn-primary" id="next-btn" onclick="nextQuestion()" style="display: none;">再答一題</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 頁面 4：結果分析頁 -->
+    <div id="page-analysis" class="page">
+      <div class="report-container">
+        <div class="report-header">
+          <h2 id="report-title">🎉 恭喜完成 10 題練習！</h2>
+          <p id="report-score-subtitle">一次答對題數：0 / 10</p>
+        </div>
+
+        <div class="report-section">
+          <div class="report-section-title" id="report-analysis-title">📊 強弱項分析報告</div>
+          <div class="analysis-text-item" id="report-strong-item">
+            💪 <strong id="report-strong-label" style="color: #15803d;">強項分析：</strong> <span id="report-strong-text">--</span>
+          </div>
+          <div class="analysis-text-item" id="report-weak-item">
+            🎯 <strong id="report-weak-label" style="color: #b91c1c;">需要補強：</strong> <span id="report-weak-text">--</span>
+          </div>
+        </div>
+
+        <div class="report-section">
+          <div class="report-section-title" id="report-correct-title" style="color: #166534;">✅ 答對的題目</div>
+          <div class="question-list-container" id="correct-questions-list"></div>
+        </div>
+
+        <div class="report-section">
+          <div class="report-section-title" id="report-wrong-title" style="color: #991b1b;">❌ 答錯 / 需要協助的題目</div>
+          <div class="question-list-container" id="wrong-questions-list"></div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn-secondary" onclick="goHome()" id="report-home-btn">返回首頁</button>
+          <button class="btn-primary" onclick="openRetryModal()" id="report-retry-btn">我想再試</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 彈出窗框 -->
+  <div class="modal-overlay" id="retry-modal">
+    <div class="modal-content">
+      <h3 id="modal-title">重新開始練習</h3>
+      <p id="modal-desc">準備好再挑戰一次嗎？系統將為你生成一組全新的題目！</p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn-secondary" onclick="closeRetryModal()" id="modal-cancel-btn">取消</button>
+        <button class="btn-primary" onclick="confirmRetry()" id="modal-confirm-btn">確認再試</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const i18n = {
+      'zh-HK': {
+        appTitle: '數的分解與合成',
+        langBtn: 'English',
+        homePrompt: '請選擇學習主題',
+        decompTitle: '數的分解',
+        decompDesc: '練習將一個數分解為兩個數。包含基礎及進階不同數值範圍的分層練習。',
+        compTitle: '數的合成 🔥',
+        compDesc: '練習將兩個數合成為一個數。分層練習不同數值範圍的合成組合。',
+        stagePromptDecomp: '請選擇練習階段（可單選或多選）',
+        stagePromptComp: '請選擇合成練習階段（可單選或多選）',
+        stage1Decomp: '1. 2至10的分解',
+        stage2Decomp: '2. 11至13的分解',
+        stage3Decomp: '3. 14至18的分解',
+        stage1Comp: '1. 2至10的合成',
+        stage2Comp: '2. 11至13的合成',
+        stage3Comp: '3. 14至18的合成',
+        backBtn: '返回主頁',
+        startBtn: '開始練習',
+        navBackStage: '← 返回階段選擇',
+        selectWarning: '請至少選擇一個練習階段！',
+        submitBtn: '提交答案',
+        nextBtn: '再答一題',
+        viewReportBtn: '查看分析報告',
+        correctFeedback: ['太棒了！答對了！🌟', '真聰明！完全正確！👏', '做得很棒！繼續保持！💪'],
+        wrongTryAgain: '不完全正確喔！再試試看～',
+        
+        hintPrefixDecomp: '💡 <strong>解題小助手：</strong> 想像有 <strong>{total}</strong> 個圓點，拿走 <strong>{known}</strong> 個（灰色），數數看還剩幾個藍色圓點？',
+        hintPrefixComp: '💡 <strong>解題小助手：</strong> 想像把 <strong>{p1}</strong> 個灰色圓點和 <strong>{p2}</strong> 個藍色圓點合起來，一共有幾個圓點？',
+
+        maxErrSolution: '沒關係，我們一起來看看解題過程：',
+        solutionTextDecomp: '{total} 可以分解為 {known} 和 <span style="color:var(--accent-blue); font-size:1.3rem;">{answer}</span>',
+        solutionTextComp: '{p1} 與 {p2} 可以合成為 <span style="color:var(--accent-blue); font-size:1.3rem;">{answer}</span>',
+        
+        modalTitle: '重新開始練習',
+        modalDesc: '準備好再挑戰一次嗎？系統將為你生成一組全新的題目！',
+        modalCancel: '取消',
+        modalConfirm: '確認再試',
+        
+        reportTitle: '🎉 恭喜完成 10 題練習！',
+        reportScoreSubtitle: '一次答對題數：{count} / 10',
+        reportAnalysisTitle: '📊 強弱項分析報告',
+        reportStrongLabel: '💪 強項分析：',
+        reportWeakLabel: '🎯 需要補強：',
+        reportCorrectTitle: '✅ 答對的題目',
+        reportWrongTitle: '❌ 答錯 / 需要協助的題目',
+        reportHomeBtn: '返回首頁',
+        reportRetryBtn: '我想再試',
+        
+        strongHighDecomp: '數的分解基礎非常穩固，能快速且準確地進行拆解！',
+        weakHighDecomp: '整體表現優異，無明顯弱項，繼續保持！',
+        strongMidDecomp: '對數的分解有基本概念，態度良好且能嘗試解題。',
+        weakMidDecomp: '在較大數值（如11-18）的分解上偶有疏漏，建議透過圓點圖示加強練習。',
+        strongLowDecomp: '能積極嘗試回答問題，具備學習熱忱！',
+        weakLowDecomp: '對於「總數與部分」的拆解關係仍需加強，建議重新練習 2-10 的基礎分解。',
+
+        strongHighComp: '數的合成基礎非常穩固，能快速且準確地計算總和！',
+        weakHighComp: '整體表現優異，無明顯弱項，繼續保持！',
+        strongMidComp: '對數的合成有基本概念，態度良好且能嘗試解題。',
+        weakMidComp: '在較大數值（如11-18）的合成上偶有疏漏，建議多利用圖像輔助計算。',
+        strongLowComp: '能積極嘗試回答問題，具備學習熱忱！',
+        weakLowComp: '對於「部分合為整體」的合成關係仍需加強，建議重新練習 2-10 的基礎合成。',
+
+        emptyCorrect: '無答對題目',
+        emptyWrong: '完全沒有答錯的題目，真棒！',
+        questionItemTitleDecomp: '第 {index} 題：{total} 分解為 {known} 與 ___',
+        questionItemTitleComp: '第 {index} 題：{p1} 與 {p2} 合成為 ___',
+        yourAnswer: '你的回答：',
+        correctAnswerLabel: '正確參考答案：'
+      },
+      'en': {
+        appTitle: 'Number Splitting & Combining',
+        langBtn: '繁體中文',
+        homePrompt: 'Select a Learning Topic',
+        decompTitle: 'Number Splitting',
+        decompDesc: 'Practice splitting a number into two parts. Includes tiered levels for different number ranges.',
+        compTitle: 'Number Combining 🔥',
+        compDesc: 'Practice combining two numbers into one. Tiered practice for different number ranges.',
+        stagePromptDecomp: 'Select Splitting Practice Stages',
+        stagePromptComp: 'Select Combining Practice Stages',
+        stage1Decomp: '1. Splitting 2 to 10',
+        stage2Decomp: '2. Splitting 11 to 13',
+        stage3Decomp: '3. Splitting 14 to 18',
+        stage1Comp: '1. Combining 2 to 10',
+        stage2Comp: '2. Combining 11 to 13',
+        stage3Comp: '3. Combining 14 to 18',
+        backBtn: 'Back to Home',
+        startBtn: 'Start Practice',
+        navBackStage: '← Back to Stages',
+        selectWarning: 'Please select at least one practice stage!',
+        submitBtn: 'Submit Answer',
+        nextBtn: 'Next Question',
+        viewReportBtn: 'View Analysis Report',
+        correctFeedback: ['Great job! Correct! 🌟', 'Smart! Perfectly right! 👏', 'Awesome! Keep it up! 💪'],
+        wrongTryAgain: 'Not quite right. Try again!',
+        
+        hintPrefixDecomp: '💡 <strong>Hint:</strong> Imagine having <strong>{total}</strong> dots, taking away <strong>{known}</strong> (grey), how many blue dots are left?',
+        hintPrefixComp: '💡 <strong>Hint:</strong> Combine <strong>{p1}</strong> grey dots and <strong>{p2}</strong> blue dots. How many dots in total?',
+
+        maxErrSolution: 'No worries! Let\'s check the solution together:',
+        solutionTextDecomp: '{total} can be split into {known} and <span style="color:var(--accent-blue); font-size:1.3rem;">{answer}</span>',
+        solutionTextComp: '{p1} and {p2} combine into <span style="color:var(--accent-blue); font-size:1.3rem;">{answer}</span>',
+
+        modalTitle: 'Restart Practice',
+        modalDesc: 'Ready to try again? A set of brand new questions will be generated!',
+        modalCancel: 'Cancel',
+        modalConfirm: 'Confirm Retry',
+
+        reportTitle: '🎉 Congratulations! Completed 10 Questions!',
+        reportScoreSubtitle: 'First-try Correct Count: {count} / 10',
+        reportAnalysisTitle: '📊 Performance Analysis Report',
+        reportStrongLabel: '💪 Strengths:',
+        reportWeakLabel: '🎯 Needs Improvement:',
+        reportCorrectTitle: '✅ Correct Questions',
+        reportWrongTitle: '❌ Incorrect / Assisted Questions',
+        reportHomeBtn: 'Back to Home',
+        reportRetryBtn: 'Try Again',
+
+        strongHighDecomp: 'Very solid foundation in number splitting!',
+        weakHighDecomp: 'Excellent overall performance!',
+        strongMidDecomp: 'Grasped basic concepts of number splitting.',
+        weakMidDecomp: 'Occasional slips in splitting larger numbers (11-18).',
+        strongLowDecomp: 'Actively tries to answer questions!',
+        weakLowDecomp: 'Needs to strengthen understanding of "whole and parts".',
+
+        strongHighComp: 'Very solid foundation in number combining!',
+        weakHighComp: 'Excellent overall performance!',
+        strongMidComp: 'Grasped basic concepts of number combining.',
+        weakMidComp: 'Occasional slips in combining larger numbers (11-18).',
+        strongLowComp: 'Actively tries to answer questions!',
+        weakLowComp: 'Needs to strengthen understanding of combining numbers.',
+
+        emptyCorrect: 'No correct questions',
+        emptyWrong: 'No incorrect questions! Well done!',
+        questionItemTitleDecomp: 'Q{index}: Split {total} into {known} and ___',
+        questionItemTitleComp: 'Q{index}: Combine {p1} and {p2} into ___',
+        yourAnswer: 'Your Answer: ',
+        correctAnswerLabel: 'Reference Answer: '
+      }
+    };
+
+    let currentLang = 'zh-HK';
+    let currentMode = 'decomposition';
+    let selectedStages = [];
+    let questions = [];
+    let currentQIndex = 0;
+    let currentErrorsCount = 0;
+    
+    let userStats = [];
+    let currentFirstAnswer = null;
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'zh-HK' ? 'en' : 'zh-HK';
+      updateUI();
+      if (document.getElementById('page-stages').classList.contains('active')) {
+        renderStageOptions();
+      }
+      if (document.getElementById('page-analysis').classList.contains('active')) {
+        renderAnalysis();
+      }
+    }
+
+    function updateUI() {
+      const texts = i18n[currentLang];
+      document.getElementById('app-title').textContent = texts.appTitle;
+      document.getElementById('lang-toggle-btn').textContent = texts.langBtn;
+      document.getElementById('home-prompt').textContent = texts.homePrompt;
+      document.getElementById('card-decomp-title').textContent = texts.decompTitle;
+      document.getElementById('card-decomp-desc').textContent = texts.decompDesc;
+      document.getElementById('card-comp-title').textContent = texts.compTitle;
+      document.getElementById('card-comp-desc').textContent = texts.compDesc;
+      document.getElementById('back-btn-text').textContent = texts.backBtn;
+      document.getElementById('start-btn-text').textContent = texts.startBtn;
+
+      document.getElementById('stage-prompt').textContent = currentMode === 'decomposition' ? texts.stagePromptDecomp : texts.stagePromptComp;
+
+      document.getElementById('nav-back-stage-text').textContent = texts.navBackStage;
+      document.getElementById('submit-btn').textContent = texts.submitBtn;
+      document.getElementById('modal-title').textContent = texts.modalTitle;
+      document.getElementById('modal-desc').textContent = texts.modalDesc;
+      document.getElementById('modal-cancel-btn').textContent = texts.modalCancel;
+      document.getElementById('modal-confirm-btn').textContent = texts.modalConfirm;
+
+      if (document.getElementById('page-quiz').classList.contains('active')) {
+        const q = questions[currentQIndex];
+        if (q) {
+          document.getElementById('quiz-stage-title').textContent = getStageTitleText(q.stage);
+          document.getElementById('quiz-question-num').textContent = currentLang === 'zh-HK' ? `題目 ${currentQIndex + 1} / 10` : `Question ${currentQIndex + 1} / 10`;
+        }
+      }
+    }
+
+    function navigateToDecomposition() {
+      currentMode = 'decomposition';
+      document.getElementById('lang-toggle-btn').style.display = 'none';
+      renderStageOptions();
+      updateUI();
+      showPage('page-stages');
+    }
+
+    function navigateToComposition() {
+      currentMode = 'composition';
+      document.getElementById('lang-toggle-btn').style.display = 'none';
+      renderStageOptions();
+      updateUI();
+      showPage('page-stages');
+    }
+
+    function renderStageOptions() {
+      const container = document.getElementById('options-list-container');
+      const texts = i18n[currentLang];
+      
+      const isDecomp = currentMode === 'decomposition';
+      const st1 = isDecomp ? texts.stage1Decomp : texts.stage1Comp;
+      const st2 = isDecomp ? texts.stage2Decomp : texts.stage2Comp;
+      const st3 = isDecomp ? texts.stage3Decomp : texts.stage3Comp;
+
+      let html = `
+        <div class="option-card" onclick="toggleOption(this)" data-stage="1">
+          <div class="checkbox-custom"></div>
+          <span class="option-text">${st1}</span>
+        </div>
+        <div class="option-card" onclick="toggleOption(this)" data-stage="2">
+          <div class="checkbox-custom"></div>
+          <span class="option-text">${st2}</span>
+        </div>
+        <div class="option-card" onclick="toggleOption(this)" data-stage="3">
+          <div class="checkbox-custom"></div>
+          <span class="option-text">${st3}</span>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function goHome() {
+      document.getElementById('lang-toggle-btn').style.display = 'block';
+      showPage('page-home');
+    }
+
+    function backToStages() {
+      showPage('page-stages');
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+    }
+
+    function toggleOption(cardElement) {
+      cardElement.classList.toggle('selected');
+    }
+
+    function startPractice() {
+      const selectedCards = document.querySelectorAll('.options-list .option-card.selected');
+      if (selectedCards.length === 0) {
+        alert(i18n[currentLang].selectWarning);
+        return;
+      }
+
+      selectedStages = Array.from(selectedCards).map(card => parseInt(card.dataset.stage));
+      generateQuestions();
+      currentQIndex = 0;
+      userStats = [];
+      showPage('page-quiz');
+      renderQuestion();
+    }
+
+    function generateQuestions() {
+      questions = [];
+      const pool = [];
+
+      selectedStages.forEach(stage => {
+        let minTotal, maxTotal;
+        if (stage === 1) { minTotal = 2; maxTotal = 10; }
+        else if (stage === 2) { minTotal = 11; maxTotal = 13; }
+        else if (stage === 3) { minTotal = 14; maxTotal = 18; }
+
+        for (let total = minTotal; total <= maxTotal; total++) {
+          for (let p1 = 1; p1 <= 9; p1++) {
+            let p2 = total - p1;
+            if (p2 >= 1 && p2 <= 9) {
+              pool.push({ stage, total, p1, p2 });
+            }
+          }
+        }
+      });
+
+      pool.sort(() => Math.random() - 0.5);
+      
+      const usedKeys = new Set();
+      for (let item of pool) {
+        if (currentMode === 'decomposition') {
+          const key = `${item.total}-${item.p1}-${item.p2}`;
+          if (!usedKeys.has(key)) {
+            usedKeys.add(key);
+            const missingSide = Math.random() < 0.5 ? 'left' : 'right';
+            questions.push({
+              mode: 'decomposition',
+              stage: item.stage,
+              total: item.total,
+              known: missingSide === 'left' ? item.p2 : item.p1,
+              answer: missingSide === 'left' ? item.p1 : item.p2,
+              missingSide: missingSide
+            });
+          }
+        } else {
+          const key = `comp-${item.p1}-${item.p2}`;
+          if (!usedKeys.has(key)) {
+            usedKeys.add(key);
+            questions.push({
+              mode: 'composition',
+              stage: item.stage,
+              total: item.total,
+              p1: item.p1,
+              p2: item.p2,
+              answer: item.total
+            });
+          }
+        }
+        if (questions.length === 10) break;
+      }
+    }
+
+    function getStageTitleText(stageNum) {
+      const isDecomp = currentMode === 'decomposition';
+      if (currentLang === 'zh-HK') {
+        if (stageNum === 1) return isDecomp ? '階段一：2至10的分解' : '階段一：2至10的合成';
+        if (stageNum === 2) return isDecomp ? '階段二：11至13的分解' : '階段二：11至13的合成';
+        if (stageNum === 3) return isDecomp ? '階段三：14至18的分解' : '階段三：14至18的合成';
+      } else {
+        if (stageNum === 1) return isDecomp ? 'Stage 1: Splitting 2-10' : 'Stage 1: Combining 2-10';
+        if (stageNum === 2) return isDecomp ? 'Stage 2: Splitting 11-13' : 'Stage 2: Combining 11-13';
+        if (stageNum === 3) return isDecomp ? 'Stage 3: Splitting 14-18' : 'Stage 3: Combining 14-18';
+      }
+      return '';
+    }
+
+    function renderQuestion() {
+      const q = questions[currentQIndex];
+      currentErrorsCount = 0;
+      currentFirstAnswer = null;
+
+      document.getElementById('quiz-progress').style.width = `${((currentQIndex + 1) / 10) * 100}%`;
+      document.getElementById('quiz-stage-title').textContent = getStageTitleText(q.stage);
+      document.getElementById('quiz-question-num').textContent = currentLang === 'zh-HK' ? `題目 ${currentQIndex + 1} / 10` : `Question ${currentQIndex + 1} / 10`;
+
+      const topNode = document.getElementById('node-top-content');
+      const leftNode = document.getElementById('node-left');
+      const rightNode = document.getElementById('node-right');
+
+      if (q.mode === 'composition') {
+        topNode.innerHTML = `<input type="number" class="node-input" id="user-input" min="2" max="18" pattern="[0-9]*" inputmode="numeric">`;
+        leftNode.innerHTML = q.p1;
+        rightNode.innerHTML = q.p2;
+      } else {
+        topNode.innerHTML = q.total;
+        const inputHTML = `<input type="number" class="node-input" id="user-input" min="1" max="9" pattern="[1-9]*" inputmode="numeric">`;
+        if (q.missingSide === 'right') {
+          leftNode.innerHTML = q.known;
+          rightNode.innerHTML = inputHTML;
+        } else {
+          leftNode.innerHTML = inputHTML;
+          rightNode.innerHTML = q.known;
+        }
+      }
+
+      document.getElementById('feedback-area').className = 'feedback-box';
+      document.getElementById('feedback-area').innerHTML = '';
+      document.getElementById('submit-btn').style.display = 'inline-block';
+      document.getElementById('next-btn').style.display = 'none';
+
+      setTimeout(() => {
+        const inputElem = document.getElementById('user-input');
+        if (inputElem) {
+          inputElem.addEventListener('wheel', e => e.preventDefault(), { passive: false });
+          inputElem.addEventListener('input', function() {
+            if (q.mode === 'composition') {
+              this.value = this.value.replace(/[^0-9]/g, '');
+              if (this.value.length > 2) this.value = this.value.slice(0, 2);
+            } else {
+              this.value = this.value.replace(/[^1-9]/g, '');
+              if (this.value.length > 1) this.value = this.value.slice(0, 1);
+            }
+          });
+          inputElem.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkAnswer();
+          });
+        }
+      }, 100);
+    }
+
+    function generateDotsHTML(p1Count, p2Count) {
+      let html = '';
+      for (let i = 0; i < p1Count; i++) {
+        html += `<span style="display:inline-block; width:18px; height:18px; border-radius:50%; background-color:#94a3b8; margin:2px;"></span>`;
+      }
+      html += `<span style="border-left: 2px dashed #cbd5e1; margin: 0 6px; height:20px; display:inline-block; vertical-align:middle;"></span>`;
+      for (let i = 0; i < p2Count; i++) {
+        html += `<span style="display:inline-block; width:18px; height:18px; border-radius:50%; background-color:#3b82f6; margin:2px;"></span>`;
+      }
+      return html;
+    }
+
+    function checkAnswer() {
+      const q = questions[currentQIndex];
+      const feedback = document.getElementById('feedback-area');
+      const texts = i18n[currentLang];
+
+      const inputElem = document.getElementById('user-input');
+      if (!inputElem || !inputElem.value) return;
+
+      const userVal = parseInt(inputElem.value);
+      if (currentFirstAnswer === null) currentFirstAnswer = userVal;
+
+      if (userVal === q.answer) {
+        feedback.className = 'feedback-box correct';
+        const randomPraise = texts.correctFeedback[Math.floor(Math.random() * texts.correctFeedback.length)];
+        feedback.innerHTML = `<div>${randomPraise}</div>`;
+
+        userStats.push({
+          qIndex: currentQIndex + 1,
+          questionObj: q,
+          firstAnswer: currentFirstAnswer,
+          correctAnswer: q.answer,
+          isFirstCorrect: currentErrorsCount === 0
+        });
+
+        document.getElementById('submit-btn').style.display = 'none';
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.style.display = 'inline-block';
+        nextBtn.textContent = currentQIndex === 9 ? texts.viewReportBtn : texts.nextBtn;
+      } else {
+        currentErrorsCount++;
+        const p1 = q.mode === 'composition' ? q.p1 : q.known;
+        const p2 = q.mode === 'composition' ? q.p2 : q.answer;
+        const dotsVisualHTML = generateDotsHTML(p1, p2);
+
+        if (currentErrorsCount < 3) {
+          feedback.className = 'feedback-box hint';
+          const hintMsg = q.mode === 'composition' 
+            ? texts.hintPrefixComp.replace('{p1}', q.p1).replace('{p2}', q.p2)
+            : texts.hintPrefixDecomp.replace('{total}', q.total).replace('{known}', q.known);
+
+          feedback.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 6px;">${texts.wrongTryAgain}</div>
+            <div style="font-size: 0.95rem; color: #7c2d12; margin-bottom: 8px;">${hintMsg}</div>
+            <div style="background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid #fde68a; display: inline-flex; align-items: center; justify-content: center;">
+              ${dotsVisualHTML}
+            </div>
+          `;
+          inputElem.value = '';
+          inputElem.focus();
+        } else {
+          feedback.className = 'feedback-box error';
+          const solutionMsg = q.mode === 'composition'
+            ? texts.solutionTextComp.replace('{p1}', q.p1).replace('{p2}', q.p2).replace('{answer}', q.answer)
+            : texts.solutionTextDecomp.replace('{total}', q.total).replace('{known}', q.known).replace('{answer}', q.answer);
+
+          feedback.innerHTML = `
+            <div>${texts.maxErrSolution}</div>
+            <div style="font-size:1.05rem; font-weight:bold; margin-top:4px; margin-bottom:8px;">${solutionMsg}</div>
+            <div style="background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid #fca5a5; display: inline-flex; align-items: center; justify-content: center;">
+              ${dotsVisualHTML}
+            </div>
+          `;
+
+          inputElem.value = q.answer;
+          inputElem.disabled = true;
+
+          userStats.push({
+            qIndex: currentQIndex + 1,
+            questionObj: q,
+            firstAnswer: currentFirstAnswer,
+            correctAnswer: q.answer,
+            isFirstCorrect: false
+          });
+
+          document.getElementById('submit-btn').style.display = 'none';
+          const nextBtn = document.getElementById('next-btn');
+          nextBtn.style.display = 'inline-block';
+          nextBtn.textContent = currentQIndex === 9 ? texts.viewReportBtn : texts.nextBtn;
+        }
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQIndex < 9) {
+        currentQIndex++;
+        renderQuestion();
+      } else {
+        renderAnalysis();
+      }
+    }
+
+    function renderAnalysis() {
+      showPage('page-analysis');
+      const texts = i18n[currentLang];
+
+      const firstTryCount = userStats.filter(s => s.isFirstCorrect).length;
+      document.getElementById('report-title').textContent = texts.reportTitle;
+      document.getElementById('report-score-subtitle').textContent = texts.reportScoreSubtitle.replace('{count}', firstTryCount);
+      document.getElementById('report-analysis-title').textContent = texts.reportAnalysisTitle;
+      document.getElementById('report-strong-label').textContent = texts.reportStrongLabel;
+      document.getElementById('report-weak-label').textContent = texts.reportWeakLabel;
+      document.getElementById('report-correct-title').textContent = texts.reportCorrectTitle;
+      document.getElementById('report-wrong-title').textContent = texts.reportWrongTitle;
+      document.getElementById('report-home-btn').textContent = texts.reportHomeBtn;
+      document.getElementById('report-retry-btn').textContent = texts.reportRetryBtn;
+
+      const strongEl = document.getElementById('report-strong-text');
+      const weakEl = document.getElementById('report-weak-text');
+
+      const isDecomp = currentMode === 'decomposition';
+
+      if (firstTryCount >= 8) {
+        strongEl.textContent = isDecomp ? texts.strongHighDecomp : texts.strongHighComp;
+        weakEl.textContent = isDecomp ? texts.weakHighDecomp : texts.weakHighComp;
+      } else if (firstTryCount >= 5) {
+        strongEl.textContent = isDecomp ? texts.strongMidDecomp : texts.strongMidComp;
+        weakEl.textContent = isDecomp ? texts.weakMidDecomp : texts.weakMidComp;
+      } else {
+        strongEl.textContent = isDecomp ? texts.strongLowDecomp : texts.strongLowComp;
+        weakEl.textContent = isDecomp ? texts.weakLowDecomp : texts.weakLowComp;
+      }
+
+      const correctContainer = document.getElementById('correct-questions-list');
+      const wrongContainer = document.getElementById('wrong-questions-list');
+
+      correctContainer.innerHTML = '';
+      wrongContainer.innerHTML = '';
+
+      const correctItems = userStats.filter(s => s.isFirstCorrect);
+      const wrongItems = userStats.filter(s => !s.isFirstCorrect);
+
+      if (correctItems.length === 0) {
+        correctContainer.innerHTML = `<div class="empty-msg">${texts.emptyCorrect}</div>`;
+      } else {
+        correctItems.forEach(item => {
+          const q = item.questionObj;
+          const card = document.createElement('div');
+          card.className = 'q-item-card correct-item';
+          
+          let titleText = q.mode === 'composition'
+            ? texts.questionItemTitleComp.replace('{index}', item.qIndex).replace('{p1}', q.p1).replace('{p2}', q.p2)
+            : texts.questionItemTitleDecomp.replace('{index}', item.qIndex).replace('{total}', q.total).replace('{known}', q.known);
+
+          card.innerHTML = `
+            <div class="q-item-title">${titleText}</div>
+            <div class="q-item-answers">
+              <span>${texts.yourAnswer}<strong>${item.firstAnswer}</strong></span>
+              <span>|</span>
+              <span>${texts.correctAnswerLabel}<strong>${item.correctAnswer}</strong></span>
+            </div>
+          `;
+          correctContainer.appendChild(card);
+        });
+      }
+
+      if (wrongItems.length === 0) {
+        wrongContainer.innerHTML = `<div class="empty-msg">${texts.emptyWrong}</div>`;
+      } else {
+        wrongItems.forEach(item => {
+          const q = item.questionObj;
+          const card = document.createElement('div');
+          card.className = 'q-item-card wrong-item';
+          
+          let titleText = q.mode === 'composition'
+            ? texts.questionItemTitleComp.replace('{index}', item.qIndex).replace('{p1}', q.p1).replace('{p2}', q.p2)
+            : texts.questionItemTitleDecomp.replace('{index}', item.qIndex).replace('{total}', q.total).replace('{known}', q.known);
+
+          card.innerHTML = `
+            <div class="q-item-title">${titleText}</div>
+            <div class="q-item-answers">
+              <span>${texts.yourAnswer}<strong>${item.firstAnswer}</strong></span>
+              <span>|</span>
+              <span>${texts.correctAnswerLabel}<strong>${item.correctAnswer}</strong></span>
+            </div>
+          `;
+          wrongContainer.appendChild(card);
+        });
+      }
+    }
+
+    function openRetryModal() {
+      document.getElementById('retry-modal').classList.add('active');
+    }
+
+    function closeRetryModal() {
+      document.getElementById('retry-modal').classList.remove('active');
+    }
+
+    function confirmRetry() {
+      closeRetryModal();
+      startPractice();
+    }
+  </script>
+</body>
+</html>
